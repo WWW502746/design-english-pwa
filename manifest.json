@@ -1,13 +1,13 @@
 {
   "name": "设计学专业英语学习工具",
-  "short_name": "for zky",
+  "short_name": "设计英语",
   "description": "可添加到手机桌面并离线使用的设计学专业英语学习工具。",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f4f1ea",
-  "theme_color": "#5f6668",
+  "theme_color": "#0f172a",
   "icons": [
     {
       "src": "./icons/icon-192.png",
