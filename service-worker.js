@@ -1,8 +1,10 @@
-const CACHE_NAME = "design-english-pwa-v3";
+const CACHE_NAME = "design-english-pwa-v2";
 
 const ASSETS = [
   "./",
   "./index.html",
+  "./styles.css",
+  "./app.js",
   "./manifest.json",
   "./icons/apple-touch-icon.png",
   "./icons/icon-192.png",
@@ -40,18 +42,11 @@ self.addEventListener("fetch", event => {
         return cached;
       }
 
-      return fetch(event.request)
-        .then(response => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-          return response;
-        })
-        .catch(() => {
-          if (event.request.mode === "navigate") {
-            return caches.match("./index.html");
-          }
-          return cached;
-        });
+      return fetch(event.request).then(response => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        return response;
+      });
     })
   );
 });
