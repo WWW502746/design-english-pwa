@@ -1,37 +1,917 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#5f6668">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="for zky">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>for zky</title>
-    <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
-    <link rel="stylesheet" href="./styles.css">
-  </head>
-  <body>
-    <main class="app-shell">
-      <section class="hero" aria-label="设计学专业英语学习工具">
-        <img class="app-logo" src="./icons/icon-192.png" alt="for zky">
-        <div>
-          <p class="eyebrow">Design English</p>
-          <h1>设计学专业英语学习工具</h1>
-          <p class="lede">已支持添加到手机桌面和离线打开。把原来的学习内容接到这个页面后，就可以发给朋友用了。</p>
-        </div>
-      </section>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="设计英语">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f172a">
+<title>设计学专业英语学习工具</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --card-hover: #273549;
+  --primary: #38bdf8;
+  --accent: #818cf8;
+  --success: #4ade80;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --border: #334155;
+  --radius: 14px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow-x: hidden; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 900px; margin: 0 auto; padding: 16px; padding-bottom: calc(80px + var(--safe-bottom)); }
 
-      <section class="tool-surface" aria-label="学习工具内容区">
-        <div class="empty-state">
-          <h2>内容区已准备好</h2>
-          <p>把你原来的 HTML 内容放到这里，或把原来的 JS/CSS 文件接进来即可。</p>
-        </div>
-      </section>
-    </main>
+/* Header */
+.header {
+  text-align: center; padding: 24px 0 16px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.header h1 { font-size: 1.5em; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.header p { color: var(--muted); margin-top: 4px; font-size: 0.85em; }
 
-    <script src="./app.js" defer></script>
-  </body>
+/* Install Banner */
+.install-banner {
+  display: none; align-items: center; justify-content: space-between;
+  background: linear-gradient(135deg, #1e3a5f, #1e293b);
+  padding: 12px 16px; border-radius: var(--radius); margin-bottom: 16px;
+  border: 1px solid var(--primary);
+}
+.install-banner span { font-size: 0.85em; color: var(--text); }
+.install-banner button {
+  background: var(--primary); color: #0f172a; border: none;
+  padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.85em; cursor: pointer;
+}
+
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(15,23,42,0.95); backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex; justify-content: space-around; align-items: center;
+  padding: 8px 8px calc(8px + var(--safe-bottom));
+  border-top: 1px solid var(--border); z-index: 100;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 12px; border-radius: 12px; cursor: pointer;
+  transition: all 0.2s; color: var(--muted); border: none; background: transparent;
+  font-size: 0.7em; font-family: inherit; min-width: 55px;
+}
+.nav-item .icon { font-size: 1.5em; }
+.nav-item.active { color: var(--primary); background: rgba(56,189,248,0.1); }
+.nav-item:active { transform: scale(0.95); }
+
+/* Stats bar */
+.stats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.stat {
+  background: var(--card); border-radius: var(--radius); padding: 10px 12px;
+  flex: 1; min-width: 60px; text-align: center; border: 1px solid var(--border);
+}
+.stat .num { font-size: 1.3em; font-weight: 700; color: var(--primary); }
+.stat .label { font-size: 0.7em; color: var(--muted); margin-top: 2px; }
+
+/* Flashcard */
+.flashcard-outer { perspective: 1000px; margin: 0 auto 16px; touch-action: pan-y; }
+.flashcard {
+  width: 100%; max-width: 600px; height: 260px; margin: 0 auto;
+  position: relative; cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-transform-style: preserve-3d;
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.flashcard-face {
+  position: absolute; inset: 0; backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--radius); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 24px 20px;
+  border: 2px solid var(--border); background: var(--card);
+  box-shadow: var(--shadow);
+}
+.flashcard-back { transform: rotateY(180deg); }
+.flashcard .term { font-size: 1.6em; font-weight: 700; text-align: center; line-height: 1.3; word-break: break-word; }
+.flashcard .hint { color: var(--muted); font-size: 0.78em; margin-top: 12px; }
+.flashcard .type-tag {
+  position: absolute; top: 14px; left: 14px;
+  background: var(--accent); color: #fff; font-size: 0.7em;
+  padding: 3px 10px; border-radius: 10px; font-weight: 600;
+}
+
+/* Card controls */
+.card-controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
+.btn {
+  padding: 9px 16px; border-radius: 22px; border: none;
+  cursor: pointer; font-size: 0.85em; font-weight: 600;
+  transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;
+  font-family: inherit; -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.btn:active { transform: scale(0.96); }
+.btn-primary { background: var(--primary); color: #0f172a; }
+.btn-primary:hover { filter: brightness(1.1); }
+.btn-success { background: var(--success); color: #0f172a; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { background: var(--card-hover); }
+.btn-sm { padding: 6px 12px; font-size: 0.78em; }
+.btn-lg { padding: 12px 24px; font-size: 0.95em; }
+
+/* Quiz */
+.quiz-card { background: var(--card); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+.quiz-card .question { font-size: 1.15em; font-weight: 600; margin-bottom: 16px; line-height: 1.5; }
+.quiz-card .question .cn { color: var(--muted); font-size: 0.75em; margin-top: 4px; display: block; }
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option {
+  padding: 13px 16px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; cursor: pointer; transition: all 0.2s;
+  font-size: 0.9em; touch-action: manipulation;
+}
+.option:active { transform: scale(0.98); }
+.option:hover { background: var(--card-hover); border-color: var(--primary); }
+.option.correct { background: #14532d; border-color: var(--success); color: var(--success); }
+.option.wrong { background: #450a0a; border-color: var(--danger); color: var(--danger); }
+.option.disabled { pointer-events: none; opacity: 0.7; }
+.quiz-result { margin-top: 14px; padding: 12px; border-radius: 10px; font-weight: 600; text-align: center; }
+.quiz-result.correct { background: #14532d; color: var(--success); }
+.quiz-result.wrong { background: #450a0a; color: var(--danger); }
+
+/* Short Answer */
+.sa-card {
+  background: var(--card); border-radius: var(--radius); padding: 20px;
+  border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 12px;
+}
+.sa-card .sa-question { font-size: 1.05em; font-weight: 600; margin-bottom: 12px; line-height: 1.5; }
+.sa-card .sa-question .label { color: var(--accent); font-size: 0.75em; }
+.answer-box {
+  background: #0f172a; border-radius: 10px; padding: 16px;
+  border: 1px solid var(--border); display: none; margin-top: 10px;
+  font-size: 0.82em; line-height: 1.7;
+}
+.answer-box.show { display: block; animation: fadeIn 0.3s ease; }
+.answer-box .en { color: var(--success); margin-bottom: 10px; }
+.answer-box .cn { color: var(--muted); border-top: 1px solid var(--border); padding-top: 10px; }
+.answer-box .cn-label { color: var(--warning); font-weight: 600; font-size: 0.85em; }
+
+/* Search/Filter */
+.filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.search-input {
+  flex: 1; min-width: 150px; padding: 9px 14px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 22px; color: var(--text); font-size: 0.88em; outline: none;
+  font-family: inherit; -webkit-appearance: none;
+}
+.search-input:focus { border-color: var(--primary); }
+.search-input::placeholder { color: var(--muted); }
+select {
+  padding: 9px 14px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 22px; color: var(--text); font-size: 0.88em; outline: none;
+  cursor: pointer; font-family: inherit; -webkit-appearance: none;
+}
+
+/* List view */
+.term-list { display: flex; flex-direction: column; gap: 5px; max-height: 55vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.term-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 11px 14px; background: var(--card); border-radius: 10px;
+  border: 1px solid var(--border); transition: all 0.2s; gap: 10px;
+}
+.term-item:active { background: var(--card-hover); }
+.term-item .chinese { font-weight: 600; font-size: 0.9em; }
+.term-item .english { font-size: 0.82em; text-align: right; word-break: break-word; }
+.term-item .english.hidden { color: var(--muted); cursor: pointer; font-size: 0.7em; }
+.term-item .english.visible { color: var(--primary); cursor: pointer; }
+
+/* Progress bar */
+.progress-bar { width: 100%; height: 5px; background: var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 3px; transition: width 0.4s; }
+
+/* Category badges */
+.category-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.badge { padding: 4px 10px; border-radius: 14px; font-size: 0.7em; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; touch-action: manipulation; }
+.badge:active { transform: scale(0.95); }
+.badge.all { background: var(--primary); color: #0f172a; }
+.badge.normal { background: transparent; border-color: var(--border); color: var(--muted); }
+.badge.normal:hover, .badge.active { background: var(--card-hover); color: var(--text); border-color: var(--primary); }
+
+/* Peek hint for flashcard */
+.peek-indicator {
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+  font-size: 0.65em; color: var(--muted); display: flex; align-items: center; gap: 4px;
+  animation: bounceHint 2s infinite;
+}
+@keyframes bounceHint { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes flipIn { from { transform: rotateY(90deg); opacity: 0; } to { transform: rotateY(0); opacity: 1; } }
+.flashcard-front { animation: flipIn 0.35s ease; }
+
+/* Swipe feedback */
+.swipe-left, .swipe-right { position: fixed; top: 50%; transform: translateY(-50%); font-size: 3em; opacity: 0; transition: opacity 0.2s; z-index: 50; pointer-events: none; }
+.swipe-left { left: 10px; }
+.swipe-right { right: 10px; }
+.swipe-left.active, .swipe-right.active { opacity: 0.7; }
+
+/* Toast */
+.toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--success); color: #0f172a; padding: 10px 20px;
+  border-radius: 20px; font-weight: 600; font-size: 0.9em; z-index: 200;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 1.5s forwards; pointer-events: none;
+}
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .flashcard { height: 220px; }
+  .flashcard .term { font-size: 1.3em; }
+  .header h1 { font-size: 1.3em; }
+  .stats { gap: 6px; }
+  .stat { padding: 8px 10px; }
+  .stat .num { font-size: 1.1em; }
+}
+
+/* Pull-down refresh prevention */
+.overscroll-none { overscroll-behavior: none; }
+
+/* Safety area for notch phones */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .header { padding-top: calc(24px + env(safe-area-inset-top)); }
+}
+</style>
+</head>
+<body class="overscroll-none">
+
+<div class="header">
+  <h1>🎨 设计学专业英语</h1>
+  <p>考研复试面试 · 98词 + 12道简述题</p>
+</div>
+
+<!-- Install Banner -->
+<div class="install-banner" id="install-banner">
+  <span>📲 添加到桌面，像App一样使用</span>
+  <button onclick="installPWA()">立即添加</button>
+</div>
+
+<!-- Swipe indicators -->
+<div class="swipe-left" id="swipe-left">◀</div>
+<div class="swipe-right" id="swipe-right">▶</div>
+
+<div class="container" id="main-content">
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat"><div class="num" id="stat-total">98</div><div class="label">总词汇</div></div>
+    <div class="stat"><div class="num" id="stat-mastered">0</div><div class="label">已掌握</div></div>
+    <div class="stat"><div class="num" id="stat-pct">0%</div><div class="label">掌握率</div></div>
+    <div class="stat"><div class="num" id="stat-streak">0</div><div class="label">🔥连对</div></div>
+  </div>
+
+  <!-- ==================== FLASHCARD TAB ==================== -->
+  <div id="tab-flashcard">
+    <div class="filter-bar">
+      <input class="search-input" id="fc-search" placeholder="🔍 搜索词汇..." oninput="filterFlashcards()" enterkeyhint="done">
+      <select id="fc-category" onchange="filterFlashcards()">
+        <option value="all">全部分类</option>
+        <option value="design-types">设计类型</option>
+        <option value="design-concepts">设计理念</option>
+        <option value="movements">设计运动</option>
+        <option value="materials">材料与工艺</option>
+        <option value="color">色彩理论</option>
+        <option value="visual">视觉元素</option>
+        <option value="brand">品牌设计</option>
+        <option value="tech">技术相关</option>
+        <option value="other">其他</option>
+      </select>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="fc-progress" style="width:0%"></div></div>
+
+    <div class="flashcard-outer" id="fc-outer">
+      <div class="flashcard" id="flashcard">
+        <div class="flashcard-face flashcard-front">
+          <div class="type-tag" id="fc-tag">中 → 英</div>
+          <div class="term" id="fc-chinese">平面设计</div>
+          <div class="peek-indicator">👆 点击翻转 · 左右滑动切换</div>
+        </div>
+        <div class="flashcard-face flashcard-back">
+          <div class="type-tag" id="fc-tag2" style="background:var(--success)">英 ← 中</div>
+          <div class="term" id="fc-english" style="color:var(--success)">Graphic Design</div>
+          <div class="hint" style="color:var(--muted)">👆 点击翻回</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-controls">
+      <button class="btn btn-outline btn-sm" onclick="prevCard()">◀</button>
+      <button class="btn btn-outline btn-sm" onclick="state.fcFlipped=false;shuffleCards()">🔀</button>
+      <button class="btn btn-danger btn-sm" onclick="markUnknown()">😕</button>
+      <button class="btn btn-success btn-sm" onclick="markKnown()">✅</button>
+      <button class="btn btn-outline btn-sm" onclick="nextCard()">▶</button>
+    </div>
+    <div style="text-align:center;color:var(--muted);font-size:0.8em" id="fc-counter">1 / 98</div>
+  </div>
+
+  <!-- ==================== QUIZ TAB ==================== -->
+  <div id="tab-quiz" style="display:none">
+    <div class="filter-bar">
+      <select id="quiz-category" onchange="startQuiz()">
+        <option value="all">全部分类</option>
+        <option value="design-types">设计类型</option>
+        <option value="design-concepts">设计理念</option>
+        <option value="movements">设计运动</option>
+        <option value="materials">材料与工艺</option>
+        <option value="color">色彩理论</option>
+        <option value="visual">视觉元素</option>
+        <option value="brand">品牌设计</option>
+        <option value="tech">技术相关</option>
+        <option value="other">其他</option>
+      </select>
+      <select id="quiz-count">
+        <option value="10">10题</option>
+        <option value="20">20题</option>
+        <option value="30">30题</option>
+        <option value="0">全部</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="startQuiz()">🔄</button>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="qz-progress" style="width:0%"></div></div>
+
+    <div class="quiz-card" id="quiz-card">
+      <div class="question" id="qz-question"></div>
+      <div class="options" id="qz-options"></div>
+      <div class="quiz-result" id="qz-result" style="display:none"></div>
+    </div>
+    <div style="text-align:center;margin-top:10px;">
+      <span style="color:var(--muted);font-size:0.8em" id="qz-counter"></span>
+    </div>
+  </div>
+
+  <!-- ==================== SHORT ANSWER TAB ==================== -->
+  <div id="tab-shortanswer" style="display:none">
+    <p style="color:var(--muted);margin-bottom:12px;font-size:0.85em">点击问题查看英文答题模板，用于面试口语练习 📖</p>
+    <div id="sa-list"></div>
+  </div>
+
+  <!-- ==================== LIST TAB ==================== -->
+  <div id="tab-list" style="display:none">
+    <div class="filter-bar">
+      <input class="search-input" id="list-search" placeholder="🔍 搜索中/英文词汇..." oninput="renderList()" enterkeyhint="done">
+      <select id="list-category" onchange="renderList()">
+        <option value="all">全部分类</option>
+        <option value="design-types">设计类型</option>
+        <option value="design-concepts">设计理念</option>
+        <option value="movements">设计运动</option>
+        <option value="materials">材料与工艺</option>
+        <option value="color">色彩理论</option>
+        <option value="visual">视觉元素</option>
+        <option value="brand">品牌设计</option>
+        <option value="tech">技术相关</option>
+        <option value="other">其他</option>
+      </select>
+    </div>
+    <div class="category-badges" id="list-badges">
+      <span class="badge all" onclick="document.getElementById('list-category').value='all';document.getElementById('list-search').value='';renderList();">全部</span>
+    </div>
+    <div class="term-list" id="term-list"></div>
+    <p style="color:var(--muted);font-size:0.75em;text-align:center;margin-top:8px">💡 点击右侧 👁 显示英文，再点隐藏，用于自测</p>
+  </div>
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="nav-item active" data-tab="flashcard"><span class="icon">🎴</span>闪卡</button>
+  <button class="nav-item" data-tab="quiz"><span class="icon">❓</span>测验</button>
+  <button class="nav-item" data-tab="shortanswer"><span class="icon">📝</span>简述</button>
+  <button class="nav-item" data-tab="list"><span class="icon">📋</span>词表</button>
+</nav>
+
+<script>
+// ==================== PWA INSTALL ====================
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').style.display = 'flex';
+});
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(result => {
+      if (result.outcome === 'accepted') {
+        document.getElementById('install-banner').style.display = 'none';
+        showToast('✅ 已添加到桌面！');
+      }
+      deferredPrompt = null;
+    });
+  }
+}
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').style.display = 'none';
+  showToast('✅ 安装成功！');
+});
+
+// ==================== TOAST ====================
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+// ==================== DATA ====================
+const categories = {
+  'design-types': ['平面设计','工业设计','室内设计','景观设计','交互设计','用户体验设计','视觉传达设计','服装设计','数字媒体艺术设计','动画设计','包装设计','标志设计','色彩设计','版式设计','原型设计','界面设计','图标设计','导航设计','动效设计','品牌形象设计','信息架构'],
+  'design-concepts': ['设计思维','设计策略','设计管理','设计美学','设计心理学','功能主义','形式追随功能','简约主义','可持续设计','生态设计','绿色设计','人性化设计','情感化设计','无障碍设计','通用设计','创意','灵感','头脑风暴','用户研究','可用性测试','交互流程','品牌识别','品牌定位','品牌传播','智能设计'],
+  'movements': ['设计史','中国设计史','外国设计史','现代主义设计','后现代主义设计','包豪斯','工艺美术运动','新艺术运动','装饰艺术运动'],
+  'materials': ['材料与工艺','木材','金属','塑料','陶瓷','玻璃','3D打印','激光切割','数控加工','表面处理','模型制作'],
+  'color': ['色彩理论','色彩搭配','色相','明度','纯度'],
+  'visual': ['视觉元素','点','线','面','体','节奏与韵律','对称与均衡','对比与协调','比例与尺度','设计草图','三视图','效果图'],
+  'brand': ['品牌形象设计','品牌识别','品牌定位','品牌传播','文化创意产业','知识产权','著作权','商标','专利'],
+  'tech': ['虚拟现实','增强现实','人工智能设计','大数据与设计','智能设计','数字媒体艺术设计','交互设计','用户体验设计','3D打印','激光切割','数控加工','动效设计','界面设计','信息架构'],
+  'other': ['设计竞赛','红点设计奖','德国iF设计奖','美国IDEA设计奖','设计工作室','设计团队','设计师','客户','项目管理','设计简报','设计提案','设计评审','设计修改','设计定稿','设计交付','问卷调查','访谈','观察法']
+};
+
+const terms = [
+  {cn:'平面设计',en:'Graphic Design'},{cn:'工业设计',en:'Industrial Design'},
+  {cn:'室内设计',en:'Interior Design'},{cn:'景观设计',en:'Landscape Design'},
+  {cn:'交互设计',en:'Interaction Design'},{cn:'用户体验设计',en:'User Experience Design (UX Design)'},
+  {cn:'视觉传达设计',en:'Visual Communication Design'},{cn:'服装设计',en:'Fashion Design'},
+  {cn:'数字媒体艺术设计',en:'Digital Media Art Design'},{cn:'动画设计',en:'Animation Design'},
+  {cn:'包装设计',en:'Packaging Design'},{cn:'标志设计',en:'Logo Design'},
+  {cn:'色彩设计',en:'Color Design'},{cn:'版式设计',en:'Layout Design'},
+  {cn:'设计思维',en:'Design Thinking'},{cn:'设计策略',en:'Design Strategy'},
+  {cn:'设计管理',en:'Design Management'},{cn:'设计美学',en:'Design Aesthetics'},
+  {cn:'设计心理学',en:'Design Psychology'},{cn:'设计史',en:'History of Design'},
+  {cn:'中国设计史',en:'History of Chinese Design'},{cn:'外国设计史',en:'History of Foreign Design'},
+  {cn:'现代主义设计',en:'Modernist Design'},{cn:'后现代主义设计',en:'Postmodernist Design'},
+  {cn:'包豪斯',en:'Bauhaus'},{cn:'工艺美术运动',en:'Arts and Crafts Movement'},
+  {cn:'新艺术运动',en:'Art Nouveau Movement'},{cn:'装饰艺术运动',en:'Art Deco Movement'},
+  {cn:'功能主义',en:'Functionalism'},{cn:'形式追随功能',en:'Form follows function'},
+  {cn:'简约主义',en:'Minimalism'},{cn:'可持续设计',en:'Sustainable Design'},
+  {cn:'生态设计',en:'Ecological Design'},{cn:'绿色设计',en:'Green Design'},
+  {cn:'人性化设计',en:'Humanized Design'},{cn:'情感化设计',en:'Emotional Design'},
+  {cn:'无障碍设计',en:'Barrier-free Design'},{cn:'通用设计',en:'Universal Design'},
+  {cn:'原型设计',en:'Prototyping'},{cn:'设计草图',en:'Design Sketch'},
+  {cn:'三视图',en:'Three-view Drawing'},{cn:'效果图',en:'Rendering'},
+  {cn:'模型制作',en:'Model Making'},{cn:'材料与工艺',en:'Materials and Techniques'},
+  {cn:'木材',en:'Wood'},{cn:'金属',en:'Metal'},{cn:'塑料',en:'Plastic'},
+  {cn:'陶瓷',en:'Ceramic'},{cn:'玻璃',en:'Glass'},{cn:'3D打印',en:'3D Printing'},
+  {cn:'激光切割',en:'Laser Cutting'},{cn:'数控加工',en:'CNC Machining'},
+  {cn:'表面处理',en:'Surface Treatment'},{cn:'色彩理论',en:'Color Theory'},
+  {cn:'色彩搭配',en:'Color Matching'},{cn:'色相',en:'Hue'},{cn:'明度',en:'Value'},
+  {cn:'纯度',en:'Saturation'},{cn:'视觉元素',en:'Visual Elements'},
+  {cn:'点',en:'Point'},{cn:'线',en:'Line'},{cn:'面',en:'Plane'},{cn:'体',en:'Solid'},
+  {cn:'节奏与韵律',en:'Rhythm and Rhyming'},{cn:'对称与均衡',en:'Symmetry and Balance'},
+  {cn:'对比与协调',en:'Contrast and Harmony'},{cn:'比例与尺度',en:'Proportion and Scale'},
+  {cn:'创意',en:'Creativity'},{cn:'灵感',en:'Inspiration'},{cn:'头脑风暴',en:'Brainstorming'},
+  {cn:'用户研究',en:'User Research'},{cn:'问卷调查',en:'Questionnaire Survey'},
+  {cn:'访谈',en:'Interview'},{cn:'观察法',en:'Observation Method'},
+  {cn:'可用性测试',en:'Usability Testing'},{cn:'信息架构',en:'Information Architecture'},
+  {cn:'界面设计',en:'Interface Design'},{cn:'图标设计',en:'Icon Design'},
+  {cn:'导航设计',en:'Navigation Design'},{cn:'交互流程',en:'Interaction Flow'},
+  {cn:'动效设计',en:'Motion Design'},{cn:'品牌形象设计',en:'Brand Image Design'},
+  {cn:'品牌识别',en:'Brand Identity'},{cn:'品牌定位',en:'Brand Positioning'},
+  {cn:'品牌传播',en:'Brand Communication'},{cn:'文化创意产业',en:'Cultural and Creative Industries'},
+  {cn:'知识产权',en:'Intellectual Property'},{cn:'著作权',en:'Copyright'},
+  {cn:'商标',en:'Trademark'},{cn:'专利',en:'Patent'},
+  {cn:'设计竞赛',en:'Design Competition'},{cn:'红点设计奖',en:'Red Dot Design Award'},
+  {cn:'德国iF设计奖',en:'German iF Design Award'},{cn:'美国IDEA设计奖',en:'Industrial Design Excellence Awards (IDEA)'},
+  {cn:'设计工作室',en:'Design Studio'},{cn:'设计团队',en:'Design Team'},
+  {cn:'设计师',en:'Designer'},{cn:'客户',en:'Client'},{cn:'项目管理',en:'Project Management'},
+  {cn:'设计简报',en:'Design Brief'},{cn:'设计提案',en:'Design Proposal'},
+  {cn:'设计评审',en:'Design Review'},{cn:'设计修改',en:'Design Revision'},
+  {cn:'设计定稿',en:'Design Finalization'},{cn:'设计交付',en:'Design Delivery'},
+  {cn:'虚拟现实',en:'Virtual Reality (VR)'},{cn:'增强现实',en:'Augmented Reality (AR)'},
+  {cn:'人工智能设计',en:'Artificial Intelligence Design'},{cn:'大数据与设计',en:'Big Data and Design'},
+  {cn:'智能设计',en:'Intelligent Design'}
+];
+
+const shortAnswers = [
+  {cn:'简述包豪斯对现代设计的影响',en:'Q: Briefly describe the influence of Bauhaus on modern design.',
+   answer:'Bauhaus emphasized the unity of art and technology, promoting a functional and rational design approach. It introduced new teaching methods that integrated various design disciplines, influencing modern design education. Its design concepts, such as simplicity and functionality, have become fundamental principles in modern design, and many Bauhaus-trained designers have had a profound impact on the development of the design industry worldwide.',
+   cnAnswer:'包豪斯强调艺术与技术的统一，倡导功能化、理性化的设计方法。它引入了整合多种设计学科的新教学方法，影响了现代设计教育。其设计理念，如简洁性和功能性，已成为现代设计的基本原则，许多包豪斯培养的设计师对全球设计行业的发展产生了深远影响。'},
+  {cn:'说明可持续设计在当今设计中的重要性',en:'Q: Explain the importance of sustainable design in today\'s design.',
+   answer:'Sustainable design is crucial as it addresses environmental, social, and economic issues. By using eco-friendly materials, reducing waste, and promoting social responsibility, it helps create a more sustainable future. In the long run, sustainable design can also bring economic benefits to businesses, such as cost-savings through resource efficiency. It has become an essential trend in the design field to meet the needs of the present without compromising the ability of future generations to meet their own needs.',
+   cnAnswer:'可持续设计至关重要，因为它解决了环境、社会和经济问题。通过使用环保材料、减少浪费以及促进社会责任，它有助于创造一个更可持续的未来。从长远来看，可持续设计还能为企业带来经济效益，例如通过资源高效利用节省成本。它已成为设计领域的一个重要趋势，旨在满足当代人的需求，同时不损害后代满足自身需求的能力。'},
+  {cn:'谈谈你对设计思维的理解',en:'Q: Talk about your understanding of design thinking.',
+   answer:'Design thinking is a human-centered approach to innovation. It involves empathizing with users to understand their needs, defining the problem clearly, ideating creative solutions, prototyping to test ideas, and iterating based on feedback. This process helps designers break away from traditional thinking patterns, enabling them to create more innovative and user-friendly designs. It can be applied not only in design projects but also in various other fields to solve complex problems.',
+   cnAnswer:'设计思维是一种以人为本的创新方法。它包括对用户产生同理心以了解他们的需求，清晰地定义问题，构思创造性的解决方案，制作原型以测试想法，并根据反馈进行迭代。这个过程帮助设计师摆脱传统思维模式，使他们能够创造出更具创新性和用户友好的设计。它不仅可以应用于设计项目，还可以应用于其他各种领域来解决复杂问题。'},
+  {cn:'举例说明用户研究在设计过程中的作用',en:'Q: Illustrate the role of user research in the design process with examples.',
+   answer:'User research is essential in the design process. For example, in the design of a mobile app, through user interviews and usability testing, designers can understand users\' behaviors, preferences, and pain points. If users often complain about the difficulty of finding certain functions in the app, designers can adjust the information architecture and navigation design accordingly. This way, user research helps designers create products that better meet users\' needs, improving user satisfaction and product competitiveness.',
+   cnAnswer:'用户研究在设计过程中至关重要。例如，在一款移动应用程序的设计中，通过用户访谈和可用性测试，设计师可以了解用户的行为、偏好和痛点。如果用户经常抱怨在应用程序中难以找到某些功能，设计师可以相应地调整信息架构和导航设计。这样，用户研究帮助设计师创造出更符合用户需求的产品，提高用户满意度和产品竞争力。'},
+  {cn:'阐述色彩设计在视觉传达设计中的意义',en:'Q: Elaborate on the significance of color design in visual communication design.',
+   answer:'Color design plays a vital role in visual communication design. Different colors can evoke various emotions and convey different messages. For instance, red often symbolizes passion and energy, while blue is associated with trust and calmness. In advertising design, appropriate color combinations can attract consumers\' attention, enhance brand recognition, and effectively communicate the product\'s features. Color can also help organize information and create a visual hierarchy, making the message more understandable and memorable.',
+   cnAnswer:'色彩设计在视觉传达设计中起着至关重要的作用。不同的颜色能唤起不同的情感并传达不同的信息。例如，红色常象征着激情与活力，而蓝色与信任和冷静相关联。在广告设计中，合适的色彩组合可以吸引消费者的注意力，增强品牌认知度，并有效地传达产品的特点。色彩还可以帮助组织信息并创建视觉层次结构，使信息更易于理解和记忆。'},
+  {cn:'简述交互设计的主要原则',en:'Q: Briefly describe the main principles of interaction design.',
+   answer:'The main principles of interaction design include usability, which ensures that the product is easy to use and learn; visibility, making the functions and operations visible to users; feedback, providing timely feedback to users\' actions; consistency, maintaining consistency in design elements and operations across different parts of the product; and error prevention, minimizing the possibility of users making mistakes. These principles help create a smooth and efficient interaction experience for users.',
+   cnAnswer:'交互设计的主要原则包括可用性，确保产品易于使用和学习；可见性，使用户能够看到功能和操作；反馈，为用户的操作提供及时反馈；一致性，在产品的不同部分保持设计元素和操作的一致性；以及防错性，尽量减少用户犯错的可能性。这些原则有助于为用户创造流畅高效的交互体验。'},
+  {cn:'谈谈你对品牌形象设计的认识',en:'Q: Talk about your understanding of brand image design.',
+   answer:'Brand image design is the process of creating a unique and consistent visual and emotional representation of a brand. It includes elements such as logo design, color scheme, typography, and brand messaging. A well-designed brand image can differentiate a brand from its competitors, build brand awareness, and evoke positive emotions in consumers. For example, the simple and iconic Apple logo, combined with its clean design language, has become a symbol of innovation and high-quality products, helping Apple to establish a strong brand identity in the global market.',
+   cnAnswer:'品牌形象设计是为品牌创造独特且一致的视觉和情感呈现的过程。它包括标志设计、配色方案、字体排版和品牌信息等元素。一个设计精良的品牌形象可以使品牌在竞争中脱颖而出，建立品牌知名度，并在消费者心中唤起积极的情感。例如，简洁且标志性的苹果标志，结合其简洁的设计语言，已成为创新和高品质产品的象征，帮助苹果在全球市场建立了强大的品牌形象。'},
+  {cn:'说明数字媒体艺术设计对当代设计的影响',en:'Q: Explain the impact of digital media art design on contemporary design.',
+   answer:'Digital media art design has revolutionized contemporary design. It has expanded the creative possibilities with new tools and techniques, such as 3D modeling, animation, and digital painting. It enables designers to create more immersive and interactive experiences, for example, in virtual reality and augmented reality applications. In addition, digital media has changed the way design is distributed and consumed, making it easier to reach a global audience. It has also led to the emergence of new design disciplines and industries, driving the development of the design field forward.',
+   cnAnswer:'数字媒体艺术设计彻底改变了当代设计。它通过3D建模、动画和数字绘画等新工具和技术扩展了创作可能性。它使设计师能够创造更具沉浸感和互动性的体验，例如在虚拟现实和增强现实应用中。此外，数字媒体改变了设计的传播和消费方式，使其更容易触达全球受众。它还导致了新的设计学科和行业的出现，推动了设计领域的发展。'},
+  {cn:'简述设计管理在设计项目中的作用',en:'Q: Briefly describe the role of design management in design projects.',
+   answer:'Design management coordinates all aspects of a design project, from planning to execution. It defines the project goals, allocates resources, and manages the design team. By ensuring effective communication between different stakeholders, such as designers, clients, and developers, it helps keep the project on track. Design management also plays a role in quality control, making sure that the final design meets the required standards. Moreover, it can help balance creativity and business objectives, maximizing the value of the design project.',
+   cnAnswer:'设计管理协调设计项目从规划到执行的各个方面。它定义项目目标，分配资源，并管理设计团队。通过确保设计师、客户和开发人员等不同利益相关者之间的有效沟通，它有助于使项目按计划进行。设计管理在质量控制方面也发挥着作用，确保最终设计符合要求的标准。此外，它可以帮助平衡创造力和商业目标，使设计项目的价值最大化。'},
+  {cn:'谈谈设计史学习对设计师的重要性',en:'Q: Talk about the importance of studying design history for designers.',
+   answer:'Studying design history is of great importance for designers. It provides a broad perspective on the evolution of design, helping designers understand the context, influences, and trends that have shaped the field. By learning from past design achievements and failures, designers can gain inspiration, avoid repeating mistakes, and develop a more informed design approach. Design history also helps designers understand the cultural and social significance of design, enabling them to create more meaningful and relevant designs in the present.',
+   cnAnswer:'学习设计史对设计师非常重要。它为设计师提供了关于设计演变的广阔视角，帮助他们理解塑造该领域的背景、影响和趋势。通过学习过去设计的成就与失败，设计师可以获得灵感，避免重复错误，并形成更明智的设计方法。设计史还帮助设计师理解设计的文化和社会意义，使他们能够在当下创造出更有意义且相关的设计。'},
+  {cn:'举例说明材料与工艺对设计的影响',en:'Q: Illustrate the impact of materials and techniques on design with examples.',
+   answer:'Materials and techniques significantly influence design. For example, in furniture design, the use of lightweight and flexible bamboo can lead to the creation of unique, organic-shaped pieces. The bending and weaving techniques applied to bamboo determine the form and functionality of the furniture. In jewelry design, the choice of precious metals like gold and silver, along with techniques such as casting and setting gemstones, can result in luxurious and intricate designs. Different materials and techniques not only affect the physical appearance but also the durability, cost, and user experience of the design.',
+   cnAnswer:'材料与工艺对设计有重大影响。例如，在家具设计中，使用轻质且柔韧的竹子可以创造出独特的有机形状的作品。应用于竹子的弯曲和编织工艺决定了家具的形式和功能。在珠宝设计中，选择黄金和白银等贵金属，以及铸造和镶嵌宝石等工艺，可以产生奢华而精致的设计。不同的材料和工艺不仅影响设计的外观，还影响其耐用性、成本和用户体验。'},
+  {cn:'阐述人工智能在设计领域的应用现状及前景',en:'Q: Elaborate on the current application and prospects of artificial intelligence in the design field.',
+   answer:'Currently, artificial intelligence is being used in the design field in various ways. For example, it can assist in generating design ideas by analyzing large amounts of data on design trends. AI-powered software can also automate some repetitive design tasks, such as layout generation. In the future, AI is expected to play an even more significant role. It may enable more personalized design experiences, as it can understand individual users\' preferences better. AI-driven design tools may also become more intelligent, providing real-time feedback and suggestions during the design process, thus revolutionizing the way designers work.',
+   cnAnswer:'目前，人工智能在设计领域有多种应用方式。例如，它可以通过分析大量关于设计趋势的数据来辅助生成设计想法。人工智能驱动的软件还可以自动化一些重复性的设计任务，如布局生成。未来，人工智能有望发挥更重要的作用。它可能实现更个性化的设计体验，因为它能更好地理解个体用户的偏好。人工智能驱动的设计工具可能会变得更加智能，在设计过程中提供实时反馈和建议，从而彻底改变设计师的工作方式。'}
+];
+
+// ==================== STATE ====================
+let state = {
+  currentTab: 'flashcard',
+  fcIndex: 0,
+  fcFiltered: [...terms],
+  fcFlipped: false,
+  mastered: new Set(JSON.parse(localStorage.getItem('designEnglishMastered')||'[]')),
+  streak: parseInt(localStorage.getItem('designEnglishStreak')||'0'),
+  quizQuestions: [],
+  quizIndex: 0,
+  quizScore: 0,
+  quizAnswered: false
+};
+
+function saveState() {
+  localStorage.setItem('designEnglishMastered', JSON.stringify([...state.mastered]));
+  localStorage.setItem('designEnglishStreak', state.streak.toString());
+}
+
+function getTermCategory(cn) {
+  for (let [cat, items] of Object.entries(categories)) {
+    if (items.includes(cn)) return cat;
+  }
+  return 'other';
+}
+
+// ==================== BOTTOM NAV ====================
+document.getElementById('bottom-nav').addEventListener('click', e => {
+  const btn = e.target.closest('.nav-item');
+  if (!btn) return;
+  switchTab(btn.dataset.tab);
+});
+
+function switchTab(tabName) {
+  state.currentTab = tabName;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-tab="${tabName}"]`).classList.add('active');
+  document.querySelectorAll('[id^="tab-"]').forEach(d => d.style.display = 'none');
+  const tabEl = document.getElementById('tab-' + tabName);
+  if (tabEl) tabEl.style.display = 'block';
+  if (tabName === 'list') renderList();
+  if (tabName === 'shortanswer') renderShortAnswers();
+  if (tabName === 'quiz') startQuiz();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ==================== STATS ====================
+function updateStats() {
+  document.getElementById('stat-total').textContent = terms.length;
+  document.getElementById('stat-mastered').textContent = state.mastered.size;
+  document.getElementById('stat-pct').textContent = Math.round(state.mastered.size / terms.length * 100) + '%';
+  document.getElementById('stat-streak').textContent = state.streak;
+}
+
+// ==================== FLASHCARD ====================
+function filterFlashcards() {
+  const search = document.getElementById('fc-search').value.toLowerCase();
+  const cat = document.getElementById('fc-category').value;
+  state.fcFiltered = terms.filter(t => {
+    if (!t.cn.toLowerCase().includes(search) && !t.en.toLowerCase().includes(search)) return false;
+    if (cat !== 'all' && getTermCategory(t.cn) !== cat) return false;
+    return true;
+  });
+  state.fcIndex = 0;
+  state.fcFlipped = false;
+  renderFlashcard();
+}
+
+function renderFlashcard() {
+  const list = state.fcFiltered;
+  if (list.length === 0) {
+    document.getElementById('fc-chinese').textContent = '无匹配结果';
+    document.getElementById('fc-english').textContent = 'No results';
+    document.getElementById('fc-counter').textContent = '0 / 0';
+    document.getElementById('fc-progress').style.width = '0%';
+    return;
+  }
+  state.fcIndex = Math.min(state.fcIndex, list.length - 1);
+  const term = list[state.fcIndex];
+  document.getElementById('fc-chinese').textContent = term.cn;
+  document.getElementById('fc-english').textContent = term.en;
+  document.getElementById('fc-counter').textContent = (state.fcIndex + 1) + ' / ' + list.length;
+  document.getElementById('fc-progress').style.width = ((state.fcIndex + 1) / list.length * 100) + '%';
+  document.getElementById('fc-tag').textContent = state.mastered.has(term.cn) ? '✅ 已掌握' : '中 → 英';
+  document.getElementById('fc-tag2').textContent = '英 ← 中';
+  state.fcFlipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+}
+
+function flipCard() {
+  if (state.fcFiltered.length === 0) return;
+  state.fcFlipped = !state.fcFlipped;
+  document.getElementById('flashcard').classList.toggle('flipped', state.fcFlipped);
+}
+
+function prevCard() {
+  if (state.fcFiltered.length === 0) return;
+  state.fcIndex = (state.fcIndex - 1 + state.fcFiltered.length) % state.fcFiltered.length;
+  state.fcFlipped = false;
+  renderFlashcard();
+}
+
+function nextCard() {
+  if (state.fcFiltered.length === 0) return;
+  state.fcIndex = (state.fcIndex + 1) % state.fcFiltered.length;
+  state.fcFlipped = false;
+  renderFlashcard();
+}
+
+function shuffleCards() {
+  if (state.fcFiltered.length <= 1) return;
+  for (let i = state.fcFiltered.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [state.fcFiltered[i], state.fcFiltered[j]] = [state.fcFiltered[j], state.fcFiltered[i]];
+  }
+  state.fcIndex = 0;
+  state.fcFlipped = false;
+  renderFlashcard();
+}
+
+function markKnown() {
+  if (state.fcFiltered.length === 0) return;
+  const term = state.fcFiltered[state.fcIndex];
+  state.mastered.add(term.cn);
+  state.streak++;
+  saveState();
+  updateStats();
+  showToast('✅ 已掌握: ' + term.en);
+  nextCard();
+}
+
+function markUnknown() {
+  if (state.fcFiltered.length === 0) return;
+  const term = state.fcFiltered[state.fcIndex];
+  state.mastered.delete(term.cn);
+  state.streak = 0;
+  saveState();
+  updateStats();
+  showToast('😕 标记为不熟');
+  nextCard();
+}
+
+// ==================== SWIPE FOR FLASHCARD ====================
+(function() {
+  let touchStartX = 0, touchStartY = 0;
+  const el = document.getElementById('fc-outer');
+  const leftHint = document.getElementById('swipe-left');
+  const rightHint = document.getElementById('swipe-right');
+
+  el.addEventListener('touchstart', e => {
+    if (state.currentTab !== 'flashcard') return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, {passive: true});
+
+  el.addEventListener('touchmove', e => {
+    if (state.currentTab !== 'flashcard') return;
+    const dx = e.touches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) {
+      if (dx > 0) { rightHint.classList.add('active'); leftHint.classList.remove('active'); }
+      else { leftHint.classList.add('active'); rightHint.classList.remove('active'); }
+    }
+  }, {passive: true});
+
+  el.addEventListener('touchend', e => {
+    if (state.currentTab !== 'flashcard') return;
+    leftHint.classList.remove('active');
+    rightHint.classList.remove('active');
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return; // not a swipe
+    if (dx > 0) prevCard();
+    else nextCard();
+  });
+
+  // Click to flip
+  document.getElementById('flashcard').addEventListener('click', e => {
+    if (state.currentTab !== 'flashcard') return;
+    // Don't flip if it was a swipe
+    flipCard();
+  });
+})();
+
+// ==================== QUIZ ====================
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  const cat = document.getElementById('quiz-category').value;
+  const count = parseInt(document.getElementById('quiz-count').value);
+  let pool = terms.filter(t => cat === 'all' || getTermCategory(t.cn) === cat);
+  pool = shuffleArray(pool);
+  if (count > 0) pool = pool.slice(0, count);
+  if (pool.length === 0) pool = shuffleArray([...terms]).slice(0, 10);
+
+  state.quizQuestions = pool.map(q => {
+    const wrongs = shuffleArray(terms.filter(t => t.cn !== q.cn)).slice(0, 3);
+    const options = shuffleArray([...wrongs.map(w => w.en), q.en]);
+    return { cn: q.cn, correct: q.en, options };
+  });
+  state.quizIndex = 0;
+  state.quizScore = 0;
+  state.quizAnswered = false;
+  renderQuiz();
+}
+
+function renderQuiz() {
+  if (state.quizQuestions.length === 0) {
+    document.getElementById('qz-question').textContent = '选择分类并点击刷新';
+    document.getElementById('qz-options').innerHTML = '';
+    document.getElementById('qz-result').style.display = 'none';
+    return;
+  }
+  const q = state.quizQuestions[state.quizIndex];
+  document.getElementById('qz-question').innerHTML = q.cn + '<span class="cn">选出正确的英文翻译</span>';
+  document.getElementById('qz-options').innerHTML = q.options.map((o, i) =>
+    `<div class="option" data-index="${i}" onclick="answerQuiz(this)">${o}</div>`
+  ).join('');
+  document.getElementById('qz-result').style.display = 'none';
+  document.getElementById('qz-counter').textContent = `第 ${state.quizIndex+1}/${state.quizQuestions.length} 题 · 得分: ${state.quizScore}`;
+  document.getElementById('qz-progress').style.width = ((state.quizIndex) / state.quizQuestions.length * 100) + '%';
+  state.quizAnswered = false;
+}
+
+function answerQuiz(el) {
+  if (state.quizAnswered) return;
+  state.quizAnswered = true;
+  const q = state.quizQuestions[state.quizIndex];
+  const chosen = q.options[parseInt(el.dataset.index)];
+  const resultEl = document.getElementById('qz-result');
+  const allOptions = document.querySelectorAll('#qz-options .option');
+
+  allOptions.forEach(o => o.classList.add('disabled'));
+  allOptions.forEach(o => {
+    if (o.textContent.trim() === q.correct) o.classList.add('correct');
+  });
+
+  if (chosen === q.correct) {
+    state.quizScore++;
+    state.streak++;
+    state.mastered.add(q.cn);
+    resultEl.className = 'quiz-result correct';
+    resultEl.textContent = '✅ 正确！';
+    resultEl.style.display = 'block';
+  } else {
+    state.streak = 0;
+    el.classList.add('wrong');
+    resultEl.className = 'quiz-result wrong';
+    resultEl.textContent = '❌ 错误！正确答案: ' + q.correct;
+    resultEl.style.display = 'block';
+  }
+  saveState();
+  updateStats();
+
+  setTimeout(() => {
+    state.quizIndex++;
+    if (state.quizIndex >= state.quizQuestions.length) {
+      const pct = Math.round(state.quizScore/state.quizQuestions.length*100);
+      document.getElementById('qz-question').innerHTML = '🎉 测验完成！';
+      document.getElementById('qz-options').innerHTML = '';
+      resultEl.className = `quiz-result ${pct >= 70 ? 'correct' : 'wrong'}`;
+      resultEl.textContent = `得分: ${state.quizScore}/${state.quizQuestions.length} (${pct}%)`;
+      resultEl.style.display = 'block';
+      document.getElementById('qz-counter').textContent = '点击 🔄 再来一轮';
+      document.getElementById('qz-progress').style.width = '100%';
+    } else {
+      renderQuiz();
+    }
+    state.quizAnswered = false;
+  }, 1200);
+}
+
+// ==================== SHORT ANSWER ====================
+function renderShortAnswers() {
+  document.getElementById('sa-list').innerHTML = shortAnswers.map((sa, i) => `
+    <div class="sa-card">
+      <div class="sa-question">
+        <span class="label">Topic ${i+1}</span><br>
+        ${sa.cn}<br>
+        <small style="color:var(--muted)">${sa.en}</small>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="toggleAnswer(${i})">📖 查看答题模板</button>
+      <div class="answer-box" id="sa-answer-${i}">
+        <div class="en">${sa.answer}</div>
+        <div class="cn"><span class="cn-label">中文对照：</span><br>${sa.cnAnswer}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleAnswer(i) {
+  const box = document.getElementById('sa-answer-' + i);
+  box.classList.toggle('show');
+}
+
+// ==================== LIST ====================
+function renderList() {
+  const search = document.getElementById('list-search').value.toLowerCase();
+  const cat = document.getElementById('list-category').value;
+  const filtered = terms.filter(t => {
+    if (!t.cn.toLowerCase().includes(search) && !t.en.toLowerCase().includes(search)) return false;
+    if (cat !== 'all' && getTermCategory(t.cn) !== cat) return false;
+    return true;
+  });
+
+  document.getElementById('list-badges').innerHTML = '<span class="badge all" onclick="document.getElementById(\'list-category\').value=\'all\';document.getElementById(\'list-search\').value=\'\';renderList();">全部</span>' +
+    Object.entries(categories).map(([k, items]) =>
+      `<span class="badge normal" onclick="document.getElementById('list-category').value='${k}';document.getElementById('list-search').value='';renderList();">${items[0]} (${items.length})</span>`
+    ).join('');
+
+  const listEl = document.getElementById('term-list');
+  if (filtered.length === 0) {
+    listEl.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted)">无匹配词汇</div>';
+    return;
+  }
+  listEl.innerHTML = filtered.map(t => `
+    <div class="term-item">
+      <span class="chinese">${t.cn}</span>
+      <span class="english hidden" onclick="event.stopPropagation();toggleTermEnglish(this)" data-en="${t.en}">👁 点击查看</span>
+    </div>
+  `).join('');
+}
+
+function toggleTermEnglish(el) {
+  if (el.classList.contains('hidden')) {
+    el.classList.remove('hidden');
+    el.classList.add('visible');
+    el.textContent = el.dataset.en;
+  } else {
+    el.classList.remove('visible');
+    el.classList.add('hidden');
+    el.textContent = '👁 点击查看';
+  }
+}
+
+// ==================== INIT ====================
+function init() {
+  updateStats();
+  renderFlashcard();
+  renderList();
+  renderShortAnswers();
+
+  // Reset quiz on first load
+  startQuiz();
+}
+
+init();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js");
+  });
+}
+</script>
+</body>
 </html>
